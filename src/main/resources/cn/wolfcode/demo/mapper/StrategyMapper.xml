@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.wolfcode.demo.mapper.StrategyMapper">
+
+    <resultMap id="res2" type="cn.wolfcode.demo.entiy.Strategy">
+        <id property="id" column="id"></id>
+        <result property="cover" column="cover"></result>
+        <result property="title" column="title"></result>
+        <result property="uid" column="uid"></result>
+        <result property="abs" column="abs"></result>
+        <result property="watch" column="watch"></result>
+        <!-- 对多查询-->
+        <association property="user" column="uid" select="cn.wolfcode.demo.mapper.UserMapper.queryById"></association>
+    </resultMap>
+
+    <insert id="insertStrategy">
+        insert into strategy values (null,#{abs},#{cover},#{place},
+                                  #{watch},#{price},#{title},#{classify},
+                                  #{folder},#{uid})
+    </insert>
+    <update id="updateStrategy">
+        update  strategy set
+                          abs=#{abs},cover=#{cover},place=#{place},
+                          watch=#{watch},price=#{price},title = #{title},
+                          classify=#{classify},folder=#{folder},uid=#{uid},
+                          where id=#{id}
+    </update>
+
+    <delete id="deleteById">
+        delete from strategy where id = #{id}
+    </delete>
+
+    <select id="selectAll" parameterType="cn.wolfcode.demo.entiy.QueryObject" resultType="cn.wolfcode.demo.entiy.Strategy">
+        select * from strategy
+        <where>
+            <choose>
+                <when test='queryObject.classify=="海"'>
+                    classify='海'
+                </when>
+                <when test='queryObject.classify=="星空"'>
+                    classify='星空'
+                </when>
+                <when test='queryObject.classify=="草原"'>
+                    classify='草原'
+                </when>
+                <when test='queryObject.classify=="沙漠"'>
+                    classify='沙漠'
+                </when>
+            </choose>
+
+        </where>
+    </select>
+
+    <select id="queryStrategyById" resultMap="res2">
+        select * from strategy where id=#{id}
+    </select>
+</mapper>

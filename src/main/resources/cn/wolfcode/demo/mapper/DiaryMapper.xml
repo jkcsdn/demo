@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.wolfcode.demo.mapper.DiaryMapper">
+    <!-- 自定义结果集 -->
+    <resultMap id="res1" type="cn.wolfcode.demo.entiy.Diary">
+        <id property="id" column="id"></id>
+        <result property="cover" column="cover"></result>
+        <result property="title" column="title"></result>
+        <result property="uid" column="uid"></result>
+        <result property="abs" column="abs"></result>
+        <result property="watch" column="watch"></result>
+        <!-- 对多查询-->
+        <association property="user" column="uid" select="cn.wolfcode.demo.mapper.UserMapper.queryById"></association>
+    </resultMap>
+
+    <insert id="insertDiary">
+        insert into diary values (null,#{title},#{abs},#{place},#{cover},
+                                  #{content},#{watch},#{classify},#{uid},#{goTime},
+                                  #{day},#{money},#{accompany},#{writeTime},#{folder})
+    </insert>
+
+    <update id="updateWatch">
+        update diary set watch = watch + 1 where id = #{id}
+    </update>
+
+    <update id="updateDiary">
+        update  diary set
+        title = #{title},abs=#{abs},place=#{place},
+        cover =  #{cover}, watch=#{watch},classify=#{classify},
+        uid=#{uid},goTime=#{goTime},day=#{day},content=#{content},
+        money=#{money},accompany=#{accompany},writeTime=#{writeTime},
+        folder=#{folder} where id=#{id}
+
+    </update>
+
+    <delete id="deleteById">
+        delete from diary where id = #{id}
+    </delete>
+
+    <select id="getDiaryAllByBasic" resultMap="res1">
+        select id,cover,title,uid,abs,watch from diary
+        <where>
+            <choose>
+                <when test="queryObject.money=='40k-50k'">
+                    and money between 40000 and 50000
+                </when>
+                <when test="queryObject.money=='30k-40k'">
+                    and money between 30000 and 40000
+                </when>
+                <when test="queryObject.money=='10k-30k'">
+                    and money between 10000 and 30000
+                </when>
+                <when test="queryObject.money=='1-10k'">
+                    and money between 1 and 10000
+                </when>
+            </choose>
+
+           <choose>
+               <when test="queryObject.day=='60天-90天'">
+                   and money between 60 and 90
+               </when>
+               <when test="queryObject.day=='30天-60天'">
+                   and money between 30 and 60
+               </when>
+               <when test="queryObject.day=='10天-30天'">
+                   and money between 10 and 30
+               </when>
+               <when test="queryObject.day=='1天-10天'">
+                   and money between 1 and 10
+               </when>
+           </choose>
+        </where>
+
+        <if test="queryObject.basic=='最新游记'">
+            order by writeTime desc
+        </if>
+        <if test="queryObject.basic=='最热游记'">
+            order by watch desc
+        </if>
+    </select>
+
+    <select id="queryById" resultMap="res1">
+        select * from diary where id=#{id}
+    </select>
+
+    <select id="hotCity" resultType="cn.wolfcode.demo.entiy.Diary">
+            select place,sum(watch) as watch from diary
+            group by place
+            order by watch
+            limit 5
+    </select>
+
+    <select id="countMoney" resultType="java.lang.Integer">
+        select count(*) from diary
+        <where>
+            <choose>
+                <when test="num2!=null">
+                    money between #{num1} and #{num2}
+                </when>
+                <when test="num2==null">
+                    money &gt;=50000
+                </when>
+            </choose>
+        </where>
+    </select>
+
+</mapper>

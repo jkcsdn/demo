@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.wolfcode.demo.mapper.CommentMapper">
+    <resultMap id="resMap" type="cn.wolfcode.demo.entiy.Comment">
+        <id property="id" column="id" ></id>
+        <result property="content" column="content" ></result>
+        <result column="uid" property="uid"></result>
+        <result column="artId" property="artId"></result>
+        <result column="time" property="time"></result>
+        <result column="type" property="type"></result>
+        <association property="user" column="uid" select="cn.wolfcode.demo.mapper.UserMapper.queryById"></association>
+    </resultMap>
+
+    <insert id="insertComment">
+        insert into comment(content,uid,artId,time,type)
+        value(#{content},#{uid},#{artId},#{time},#{type})
+    </insert>
+
+    <select id="queryListByArtId" resultMap="resMap">
+        select * from comment where artId = #{id} and type = #{type}
+        order by time desc
+    </select>
+
+    <select id="queryContentByArtId" resultType="java.lang.Integer">
+        select  count(*) from `comment`
+        where artId = #{artId}
+    </select>
+</mapper>
